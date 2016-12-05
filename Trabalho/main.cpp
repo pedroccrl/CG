@@ -1,220 +1,23 @@
 #include <windows.h>
+#include <iostream>
 #include <GL/glut.h>
 #include <stdio.h>
+#include "objetos.h"
 
 float anguloz = 1, anguloy = 1, ang_esfera = 0;
 float frentex=0, frentez=0, frentey;
 int espaco = 30;
+float anda = 0;
+
+
+TTriangle Vaca[6000];
+TTriangle Tree[19000];
+int NFacesVaca, NFacesTree;
+
 
 void Animacao(int id){
     ang_esfera += 1;
     glutPostRedisplay();
-}
-
-void Paredes(){
-    float altura = 8.0;
-    glBegin(GL_QUADS);
-        glColor3f(0.6f, 0.0f, 0.0f); //PAREDE ATRÁS DA TV
-        glVertex3f(20, altura, 20);
-        glVertex3f(20, -altura, 20);
-        glVertex3f(-20, -altura, 20);
-        glVertex3f(-20, altura, 20);
-
-        glColor3f(0.65f, 0.0f, 0.0f); //PAREDE DA PORTA
-        glVertex3f(20, altura, -20);
-        glVertex3f(20, -altura, -20);
-        glVertex3f(-20, -altura, -20);
-        glVertex3f(-20, altura, -20);
-
-        glColor3f(0.7f, 0.0f, 0.0f); //PAREDE MAIS PRÓXIMA DA PORTA
-        glVertex3f(20, altura, -20);
-        glVertex3f(20, -altura, -20);
-        glVertex3f(20, -altura, 20);
-        glVertex3f(20, altura, 20);
-
-        glColor3f(0.75f, 0.0f, 0.0f); //PAREDE DA BANDEIRA
-        glVertex3f(-20, altura, 20);
-        glVertex3f(-20, -altura, 20);
-        glVertex3f(-20, -altura, -20);
-        glVertex3f(-20, altura, -20);
-    glEnd();
-}
-
-void Mesa(){
-    glPushMatrix();
-    //Mesa
-        glBegin(GL_QUADS);
-            //Tampos
-            glVertex3f(10.0f,0,10.0f);
-            glVertex3f(10.0f,0,7.5f);
-            glVertex3f(7.5f,0,7.5f);
-            glVertex3f(7.5f,0,10.0f);
-
-            glVertex3f(10.0f,0.5,10.0f);
-            glVertex3f(10.0f,0.5,7.5f);
-            glVertex3f(7.5f,0.5,7.5f);
-            glVertex3f(7.5f,0.5,10.0f);
-            //Partes laterais
-            glColor3f(0,1,0);
-            glVertex3f(10,0,10);
-            glVertex3f(10,0.5,10);
-            glVertex3f(10,0.5,7.5);
-            glVertex3f(10,0,7.5);
-
-            glColor3f(1,0,1);
-            glVertex3f(10,0,7.5);
-            glVertex3f(10,0.5,7.5);
-            glVertex3f(7.5,0.5,7.5);
-            glVertex3f(7.5,0,7.5);
-
-            glColor3f(0,1,1);
-            glVertex3f(7.5,0,10);
-            glVertex3f(7.5,0.5,10);
-            glVertex3f(7.5,0.5,7.5);
-            glVertex3f(7.5,0,7.5);
-
-            glColor3f(1,1,0);
-            glVertex3f(10,0,10);
-            glVertex3f(10,0.5,10);
-            glVertex3f(7.5,0.5,10);
-            glVertex3f(7.5,0,10);
-            //Pés
-            glColor3f(1,1,1);
-            glVertex3f(10,0,10);
-            glVertex3f(10,-8,10);
-            glVertex3f(10,-8,7.5);
-            glVertex3f(10,0,7.5);
-
-            glVertex3f(7.5,0,10);
-            glVertex3f(7.5,-8,10);
-            glVertex3f(7.5,-8,7.5);
-            glVertex3f(7.5,0,7.5);
-
-
-        glEnd();
-    glPopMatrix();
-}
-
-void Esferas(){
-    glPushMatrix();
-        glTranslatef(0,5,0);
-        glColor3f(1.0f, 0.0f, 1.0f);
-        glRotatef(ang_esfera,0,1,0);
-        glutWireSphere(2, 16, 16);
-    glPopMatrix();
-
-    glPushMatrix();
-        glTranslatef(0,5,0);
-        glColor3f(0.0f, 1.0f, 1.0f);
-        glRotatef(ang_esfera,1,0,0);
-        glutWireSphere(1.5, 16, 16);
-    glPopMatrix();
-
-    glPushMatrix();
-        glTranslatef(0,5,0);
-        glColor3f(0.2f, 0.2f, 0.2f);
-        glRotatef(ang_esfera,0,0,1);
-        glutSolidSphere(1, 16, 16);
-    glPopMatrix();
-}
-
-void Sofa(){
-    glPushMatrix();
-
-    glBegin(GL_QUADS); //DESENHA APOIO DO SOFÁ
-    glColor3f(0.59f,0.29f,0.0f);
-    // Tampos do apoio
-    glVertex3f(13, -5, 0);
-    glVertex3f(5, -5, 0);
-    glVertex3f(5, -0.5, 0);
-    glVertex3f(13, -0.5, 0);
-
-    glVertex3f(13, -5, -0.5);
-    glVertex3f(5, -5, -0.5);
-    glVertex3f(5, -0.5, -0.5);
-    glVertex3f(13, -0.5, -0.5);
-
-    glVertex3f(13, -5, 0);
-    glVertex3f(13, -5, -0.5);
-    glVertex3f(13, -0.5, -0.5);
-    glVertex3f(13, -0.5, 0);
-
-    glVertex3f(5, -5, 0);
-    glVertex3f(5, -5, -0.5);
-    glVertex3f(5, -0.5, -0.5);
-    glVertex3f(5, -0.5, 0);
-
-    glVertex3f(13, -0.5, 0);
-    glVertex3f(13, -0.5, -0.5);
-    glVertex3f(5, -0.5, -0.5);
-    glVertex3f(5, -0.5, 0);
-    glEnd();
-
-    glBegin(GL_QUADS);
-    glColor3f(0.55f,0.27f,0.07f);
-    glVertex3f(5, -4.99, 0.01);
-    glVertex3f(6, -4.99, 0.01);
-    glVertex3f(6, -4.99, 2);
-    glVertex3f(5, -4.99, 2);
-
-    glVertex3f(5, -2.5, 2);
-    glVertex3f(5, -2.5, 0.01);
-    glVertex3f(6, -2.5, 0.01);
-    glVertex3f(6, -2.5, 2);
-
-    glVertex3f(5, -2.5, 2);
-    glVertex3f(5, -4.99, 2);
-    glVertex3f(6, -4.99, 2);
-    glVertex3f(6, -2.5, 2);
-
-    glVertex3f(5, -2.5, 2);
-    glVertex3f(5, -4.99, 2);
-    glVertex3f(5, -4.99, 0.01);
-    glVertex3f(5, -2.5, 0.01);//DESENHA LATERAL 1 DO SOFÁ
-
-    glVertex3f(6, -2.5, 2);
-    glVertex3f(6, -4.99, 2);
-    glVertex3f(6, -4.99, 0.01);
-    glVertex3f(6, -2.5, 0.01); //DESENHA CABECEIRA 1
-
-    glVertex3f(12, -2.5, 2);
-    glVertex3f(12, -2.5, 0.01);
-    glVertex3f(13, -2.5, 0.01);
-    glVertex3f(13, -2.5, 2);
-
-    glVertex3f(12, -2.5, 2);
-    glVertex3f(12, -4.99, 2);
-    glVertex3f(13, -4.99, 2);
-    glVertex3f(13, -2.5, 2);
-
-    glVertex3f(12, -2.5, 2);
-    glVertex3f(12, -4.99, 2);
-    glVertex3f(12, -4.99, 0.01);
-    glVertex3f(12, -2.5, 0.01);
-
-    glVertex3f(13, -2.5, 2);
-    glVertex3f(13, -4.99, 2);
-    glVertex3f(13, -4.99, 0.01);
-    glVertex3f(13, -2.5, 0.01); //desenha cabeceira 2
-
-    glColor3f(0.43f,0.21f, 0.1f);
-    glVertex3f(6, -4.99, 0.01);
-    glVertex3f(6, -4.99, 2);
-    glVertex3f(12, -4.99, 2);
-    glVertex3f(12, -4.99, 0.01); //DESENHA BASE DO SOFÁ NO CHÃO
-
-    glVertex3f(6, -3.75, 0.01);
-    glVertex3f(6, -3.75, 2);
-    glVertex3f(12, -3.75, 2);
-    glVertex3f(12, -3.75, 0.01); //DESENHA BASE DO SOFÁ NO ALTO
-
-    glVertex3f(6, -3.75, 2);
-    glVertex3f(6, -4.99, 2);
-    glVertex3f(12, -4.99, 2);
-    glVertex3f(12, -3.75, 2); //COMPLETA BASE DO SOFÁ
-
-    glEnd();
-    glPopMatrix();
 }
 
 void Desenha(void)
@@ -227,7 +30,7 @@ void Desenha(void)
     glLoadIdentity();
 
     glRotatef(anguloy,0,1,0);
-    glRotatef(anguloz,0,0,1);
+    glRotatef(anguloz,1,0,0);
     glTranslatef(frentex, frentey, frentez);
     //Chão
     glPushMatrix();
@@ -240,9 +43,16 @@ void Desenha(void)
         glEnd();
     glPopMatrix();
 
+    glPushMatrix();
+        glTranslatef(0,3,20);
+        glScalef(0.3,0.3,0);
+        //glRotatef(anda,1,0,0);
+        ExibeObjeto(Vaca,NFacesVaca);
+    glPopMatrix();
 
+    ExibeObjeto(Tree,NFacesTree);
     Sofa();
-    Esferas();
+    Esferas(ang_esfera);
     Mesa();
     Paredes();
     glFlush();
@@ -268,6 +78,9 @@ void Teclado(unsigned char key, int x, int y)
     float var_ang = 0.8;
     switch (key)
     {
+    case '+':
+        anda += 1;
+        break;
         case '1': anguloz = 0;
                   anguloy = 0;
                   frentex = 0;
@@ -302,7 +115,8 @@ void Teclado(unsigned char key, int x, int y)
         case 27: exit(1);
 
     }
-
+    printf("Frente:\n x:%.2f\ty:%.2f\tz:%.2f\n",frentex,frentey,frentez);
+    printf("Angulo:\n x:%.2f\ty:%.2f\n",frentex,anguloy);
     glutPostRedisplay();
 }
 
@@ -323,8 +137,8 @@ void Inicializar()
 	glMateriali(GL_FRONT,GL_SHININESS,especMaterial);
 	// Define os parâmetros da luz de número 0
 	glLightfv(GL_LIGHT0, GL_AMBIENT, luzAmbiente);
-	//glLightfv(GL_LIGHT0, GL_DIFFUSE, luzDifusa );
-	//glLightfv(GL_LIGHT0, GL_SPECULAR, luzEspecular );
+	glLightfv(GL_LIGHT0, GL_DIFFUSE, luzDifusa );
+	glLightfv(GL_LIGHT0, GL_SPECULAR, luzEspecular );
 	glLightfv(GL_LIGHT0, GL_POSITION, posicaoLuz);
     // Habilita a definição da cor do material a partir da cor corrente
 	glEnable(GL_COLOR_MATERIAL);
@@ -337,13 +151,15 @@ void Inicializar()
 	// Ativa o uso da luz ambiente
 	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, luzAmbiente);
 
+    //glEnable(GL_CULL_FACE);
+
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
 
     glEnable(GL_DEPTH_TEST);
 
     gluPerspective(70, 1, 0.1, 500);
-    gluLookAt(2,0,2, /// observador
+    gluLookAt(0,0,0, /// observador
               0,0,1, /// centro
               0,10,0); /// topo
 }
@@ -358,7 +174,8 @@ int main(int argc, char* argv[])
     glutCreateWindow("Aplicação OpenGL");
     glutDisplayFunc(Desenha);
     glutKeyboardFunc(Teclado);
-
+	LeObjeto("C:\\Users\\Victor\\OneDrive - id.uff.br\\Faculdade\\2016.2\\CG\\Trabalho\\Objetos\\Vaca.tri", Vaca, NFacesVaca);
+    //LeObjeto("C:\\Users\\Victor\\OneDrive - id.uff.br\\Faculdade\\2016.2\\CG\\Trabalho\\Objetos\\dog_meu.tri", Tree, NFacesTree);
     Inicializar();
 
     glutMainLoop();
