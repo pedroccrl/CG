@@ -219,12 +219,14 @@
 893394000 c:\program files (x86)\codeblocks\mingw\include\gl\glu.h
 	<GL/gl.h>
 
-1480919860 source:c:\users\victor\onedrive - id.uff.br\faculdade\2016.2\cg\trabalho\main.cpp
+1480998895 source:c:\users\victor\onedrive - id.uff.br\faculdade\2016.2\cg\trabalho\main.cpp
 	<windows.h>
 	<iostream>
 	<GL/glut.h>
 	<stdio.h>
-	"objetos.h"
+	<math.h>
+	"objeto.h"
+	"base.h"
 
 1341013976 c:\program files (x86)\codeblocks\mingw\include\stdio.h
 	<_mingw.h>
@@ -249,5 +251,12 @@
 1341013974 c:\program files (x86)\codeblocks\mingw\include\math.h
 	<_mingw.h>
 
-1480919981 c:\users\victor\onedrive - id.uff.br\faculdade\2016.2\cg\trabalho\objetos.h
+1480982361 c:\users\victor\onedrive - id.uff.br\faculdade\2016.2\cg\trabalho\objetos.h
+
+1480998170 c:\users\victor\onedrive - id.uff.br\faculdade\2016.2\cg\trabalho\objeto.h
+	<vector>
+	<iostream>
+	<stdio.h>
+
+1480982361 c:\users\victor\onedrive - id.uff.br\faculdade\2016.2\cg\trabalho\base.h
 

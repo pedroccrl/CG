@@ -2,21 +2,34 @@
 #include <iostream>
 #include <GL/glut.h>
 #include <stdio.h>
-#include "objetos.h"
+#include <math.h>
+#include "objeto.h"
+#include "base.h"
 
 float anguloz = 1, anguloy = 1, ang_esfera = 0;
 float frentex=0, frentez=0, frentey;
 int espaco = 30;
 float anda = 0;
-
+vector<face> aviao, trofeu;
 
 TTriangle Vaca[6000];
 TTriangle Tree[19000];
 int NFacesVaca, NFacesTree;
 
-
-void Animacao(int id){
+int tempo_animacao = 100;
+void Animacao(int tempo_atual){
     ang_esfera += 1;
+    glutTimerFunc(tempo_atual,Animacao,tempo_animacao);
+    glutPostRedisplay();
+}
+
+float controle = 0.0;
+void AnimacaoLuz(int id){
+    //Não utilizado
+    controle += 0.1;
+    GLfloat posicaoLuz[4]={controle, controle, controle, 1.0};
+	glLightfv(GL_LIGHT0, GL_POSITION, posicaoLuz);
+    glutTimerFunc(100,AnimacaoLuz,1);
     glutPostRedisplay();
 }
 
@@ -44,10 +57,19 @@ void Desenha(void)
     glPopMatrix();
 
     glPushMatrix();
-        glTranslatef(0,3,20);
-        glScalef(0.3,0.3,0);
-        //glRotatef(anda,1,0,0);
-        ExibeObjeto(Vaca,NFacesVaca);
+        glColor3f(0.5,0.5,0.5);
+        glTranslatef(-5,-3,2);
+        glRotatef(-90,1,0,0);
+        glScalef(0.1,0.1,0.1);
+        DesenhaObj(aviao);
+    glPopMatrix();
+
+    glPushMatrix();
+        glColor3f(0.2,0.2,0.2);
+        glTranslatef(0,-5,0);
+        glRotatef(270,1,0,0);
+        glScalef(0.01,0.01,0.01);
+        DesenhaObj(trofeu);
     glPopMatrix();
 
     ExibeObjeto(Tree,NFacesTree);
@@ -57,15 +79,14 @@ void Desenha(void)
     Paredes();
     glFlush();
     glutSwapBuffers();
-    glutTimerFunc(100,Animacao,1);
 }
 
 float controle_luz = 0.7;
-void LuzAmbiente(int aumenta){
-    if(aumenta && controle_luz < 1){
+void LuzAmbiente(int id){
+    if(id == 1 && controle_luz < 1){
         controle_luz += 0.1;
     }
-    else if(controle_luz > 0){
+    else if(id == 0 && controle_luz > 0){
         controle_luz -= 0.1;
     }
 	GLfloat luzAmbiente[4]={controle_luz,controle_luz,controle_luz,1.0};
@@ -86,11 +107,16 @@ void Teclado(unsigned char key, int x, int y)
                   frentex = 0;
                   frentey = 0;
                   frentez = 0;
+                  tempo_animacao = 100;
                   controle_luz = 0.6; LuzAmbiente(1);
                   break;
         case '<': LuzAmbiente(0); //Diminui
                 break;
         case '>': LuzAmbiente(1); //Aumenta
+                break;
+        case '[': if(tempo_animacao < 150) tempo_animacao += 1;
+                break;
+        case ']': if(tempo_animacao > 1) tempo_animacao -= 1;
                 break;
         case 'q': anguloy -= var_ang;
                 break;
@@ -115,17 +141,18 @@ void Teclado(unsigned char key, int x, int y)
         case 27: exit(1);
 
     }
-    printf("Frente:\n x:%.2f\ty:%.2f\tz:%.2f\n",frentex,frentey,frentez);
-    printf("Angulo:\n x:%.2f\ty:%.2f\n",frentex,anguloy);
+    printf("Frente:\t x:%.2f\ty:%.2f\tz:%.2f\n",frentex,frentey,frentez);
+    printf("Angulo:\t x:%.2f\ty:%.2f\n",frentex,anguloy);
+    printf("Tempo Animacao:%d\n\n",tempo_animacao);
     glutPostRedisplay();
 }
 
 void Inicializar()
 {
-	GLfloat luzAmbiente[4]={0.7,0.7,0.7,1.0};
-	GLfloat luzDifusa[4]={0.7,0.7,0.7,1.0};	   // "cor"
-	GLfloat luzEspecular[4]={1.0, 1.0, 1.0, 1.0};// "brilho"
-	GLfloat posicaoLuz[4]={0.0, 10.0, 0.0, 1.0};
+	GLfloat luzAmbiente[4]={1.0,1.0,1.0,1.0}; //Cor emitida
+	GLfloat luzDifusa[4]={1.0,1.0,1.0,1.0};	   // "cor"
+	GLfloat luzEspecular[4]={0.5, 0.5, 0.5, 1.0};// "brilho"
+	GLfloat posicaoLuz[4]={0.0, 20.0, 0.0, 1.0};
 	// Capacidade de brilho do material
 	GLfloat especularidade[4]={1.0,1.0,1.0,1.0};
 	GLint especMaterial = 60;
@@ -148,7 +175,7 @@ void Inicializar()
 	glEnable(GL_LIGHT0);
 	// Habilita o depth-buffering
 	glEnable(GL_DEPTH_TEST);
-	// Ativa o uso da luz ambiente
+	// Ativa o uso da luz ambienteglLightModelfv(GL_LIGHT_MODEL_AMBIENT, luzAmbiente);
 	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, luzAmbiente);
 
     //glEnable(GL_CULL_FACE);
@@ -159,8 +186,8 @@ void Inicializar()
     glEnable(GL_DEPTH_TEST);
 
     gluPerspective(70, 1, 0.1, 500);
-    gluLookAt(0,0,0, /// observador
-              0,0,1, /// centro
+    gluLookAt(0,0,1, /// observador
+              0,0,0, /// centro
               0,10,0); /// topo
 }
 
@@ -174,11 +201,12 @@ int main(int argc, char* argv[])
     glutCreateWindow("Aplicação OpenGL");
     glutDisplayFunc(Desenha);
     glutKeyboardFunc(Teclado);
-	LeObjeto("C:\\Users\\Victor\\OneDrive - id.uff.br\\Faculdade\\2016.2\\CG\\Trabalho\\Objetos\\Vaca.tri", Vaca, NFacesVaca);
+	//LeObjeto("C:\\Users\\Victor\\OneDrive - id.uff.br\\Faculdade\\2016.2\\CG\\Trabalho\\Objetos\\Vaca.tri", Vaca, NFacesVaca);
     //LeObjeto("C:\\Users\\Victor\\OneDrive - id.uff.br\\Faculdade\\2016.2\\CG\\Trabalho\\Objetos\\dog_meu.tri", Tree, NFacesTree);
+    aviao = LoadObj("C:\\Users\\Victor\\OneDrive - id.uff.br\\Faculdade\\2016.2\\CG\\Trabalho\\Objetos\\shuttle.obj");
+    trofeu = LoadObj("C:\\Users\\Victor\\OneDrive - id.uff.br\\Faculdade\\2016.2\\CG\\Trabalho\\Objetos\\trophyfootball.obj");
     Inicializar();
-
+    glutTimerFunc(tempo_animacao,Animacao,tempo_animacao);
     glutMainLoop();
-    glutTimerFunc(100,Animacao,1);
     return 0;
 }
