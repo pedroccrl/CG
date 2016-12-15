@@ -260,3 +260,25 @@
 
 1480982361 c:\users\victor\onedrive - id.uff.br\faculdade\2016.2\cg\trabalho\base.h
 
+1481773551 source:c:\users\pedro\documents\github\cg\trabalho\main.cpp
+	<windows.h>
+	<iostream>
+	<GL/glut.h>
+	<GL/glext.h>
+	<stdio.h>
+	<math.h>
+	"objeto.h"
+	"base.h"
+	"texura.h"
+
+1481086750 c:\users\pedro\documents\github\cg\trabalho\objeto.h
+	<vector>
+	<iostream>
+	<stdio.h>
+
+1481775551 c:\users\pedro\documents\github\cg\trabalho\base.h
+	"SOIL.h"
+
+1481773438 c:\users\pedro\documents\github\cg\trabalho\texura.h
+	<SOIL.h>
+

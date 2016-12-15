@@ -1,25 +1,39 @@
 #include <windows.h>
 #include <iostream>
 #include <GL/glut.h>
+#include <GL/glext.h>
 #include <stdio.h>
 #include <math.h>
 #include "objeto.h"
 #include "base.h"
+#include "texura.h"
 
 float anguloz = 1, anguloy = 1, ang_esfera = 0;
 float frentex=0, frentez=0, frentey;
 int espaco = 30;
 float anda = 0;
-vector<face> aviao, trofeu;
+vector<face> aviao, trofeu, paredes;
 
-TTriangle Vaca[6000];
-TTriangle Tree[19000];
-int NFacesVaca, NFacesTree;
 
 int tempo_animacao = 100;
 void Animacao(int tempo_atual){
     ang_esfera += 1;
     glutTimerFunc(tempo_atual,Animacao,tempo_animacao);
+    glutPostRedisplay();
+}
+
+int angYFog = 0;
+void RotacionaFoguete(int t)
+{
+    angYFog += 1;
+    glutTimerFunc(5, RotacionaFoguete, 0);
+    glutPostRedisplay();
+}
+int angZTrof = 0;
+void RotacionaTrofeu(int t)
+{
+    angZTrof += 1;
+    glutTimerFunc(25, RotacionaTrofeu, 0);
     glutPostRedisplay();
 }
 
@@ -57,31 +71,49 @@ void Desenha(void)
     glPopMatrix();
 
     glPushMatrix();
+        glTranslatef(0, 20, 0);
+        glBegin (GL_QUADS);
+        glTexCoord2f(0,1);
+        glVertex3f(10,0,100);
+        glTexCoord2f(0,0);
+        glVertex3f(20,0,100);
+        glTexCoord2f(1,0);
+        glVertex3f(20,15,50);
+        glTexCoord2f(1,1);
+        glVertex3f(10,15,50);
+        glEnd();
+    glPopMatrix();
+
+    glPushMatrix();
         glColor3f(0.5,0.5,0.5);
-        glTranslatef(-5,-3,2);
+        glTranslatef(-5,20,20);
         glRotatef(-90,1,0,0);
+        glRotatef(angYFog, 0, 1, 0);
         glScalef(0.1,0.1,0.1);
         DesenhaObj(aviao);
     glPopMatrix();
 
     glPushMatrix();
-        glColor3f(0.2,0.2,0.2);
+        glColor3f(0.5,0.2,0.2);
         glTranslatef(0,-5,0);
         glRotatef(270,1,0,0);
+        glRotatef(angZTrof, 0, 0, 1);
         glScalef(0.01,0.01,0.01);
         DesenhaObj(trofeu);
     glPopMatrix();
 
-    ExibeObjeto(Tree,NFacesTree);
+    glColor3f(0.5, 0.1, 0.1);
+    DesenhaObj(paredes);
+
     Sofa();
     Esferas(ang_esfera);
     Mesa();
-    Paredes();
     glFlush();
     glutSwapBuffers();
 }
 
 float controle_luz = 0.7;
+
 void LuzAmbiente(int id){
     if(id == 1 && controle_luz < 1){
         controle_luz += 0.1;
@@ -150,9 +182,11 @@ void Teclado(unsigned char key, int x, int y)
 void Inicializar()
 {
 	GLfloat luzAmbiente[4]={1.0,1.0,1.0,1.0}; //Cor emitida
-	GLfloat luzDifusa[4]={1.0,1.0,1.0,1.0};	   // "cor"
+	GLfloat luzDifusa[4]={0.4, 0.3, 0.3, 1.0};	   // "cor"
 	GLfloat luzEspecular[4]={0.5, 0.5, 0.5, 1.0};// "brilho"
 	GLfloat posicaoLuz[4]={0.0, 20.0, 0.0, 1.0};
+	GLfloat material_ambiente[4] = {0.7, 0.7, 0.7, 1.0};
+
 	// Capacidade de brilho do material
 	GLfloat especularidade[4]={1.0,1.0,1.0,1.0};
 	GLint especMaterial = 60;
@@ -162,6 +196,7 @@ void Inicializar()
 	glMaterialfv(GL_FRONT,GL_SPECULAR, especularidade);
 	// Define a concentração do brilho
 	glMateriali(GL_FRONT,GL_SHININESS,especMaterial);
+	glMaterialfv(GL_FRONT, GL_AMBIENT, material_ambiente);
 	// Define os parâmetros da luz de número 0
 	glLightfv(GL_LIGHT0, GL_AMBIENT, luzAmbiente);
 	glLightfv(GL_LIGHT0, GL_DIFFUSE, luzDifusa );
@@ -201,12 +236,15 @@ int main(int argc, char* argv[])
     glutCreateWindow("Aplicação OpenGL");
     glutDisplayFunc(Desenha);
     glutKeyboardFunc(Teclado);
-	//LeObjeto("C:\\Users\\Victor\\OneDrive - id.uff.br\\Faculdade\\2016.2\\CG\\Trabalho\\Objetos\\Vaca.tri", Vaca, NFacesVaca);
-    //LeObjeto("C:\\Users\\Victor\\OneDrive - id.uff.br\\Faculdade\\2016.2\\CG\\Trabalho\\Objetos\\dog_meu.tri", Tree, NFacesTree);
-    aviao = LoadObj("C:\\Users\\Victor\\OneDrive - id.uff.br\\Faculdade\\2016.2\\CG\\Trabalho\\Objetos\\shuttle.obj");
-    trofeu = LoadObj("C:\\Users\\Victor\\OneDrive - id.uff.br\\Faculdade\\2016.2\\CG\\Trabalho\\Objetos\\trophyfootball.obj");
+
+    aviao = LoadObj("C:\\Users\\pedro\\Documents\\GitHub\\CG\\Trabalho\\Objetos\\shuttle.obj");
+    trofeu = LoadObj("C:\\Users\\pedro\\Documents\\GitHub\\CG\\Trabalho\\Objetos\\trophyfootball.obj");
+    paredes = LoadObj("C:\\Users\\pedro\\Documents\\GitHub\\CG\\Trabalho\\Objetos\\paredes.obj");
+
     Inicializar();
     glutTimerFunc(tempo_animacao,Animacao,tempo_animacao);
+    glutTimerFunc(300, RotacionaFoguete, 0);
+    glutTimerFunc(25, RotacionaTrofeu, 0);
     glutMainLoop();
     return 0;
 }

@@ -1,3 +1,5 @@
+#include "SOIL.h"
+
 typedef struct  // Struct para armazenar um ponto
 {
 	float X,Y,Z;
@@ -74,8 +76,13 @@ void LeObjeto (char* const Nome, TTriangle Objeto[], int &NFaces)
 void Paredes(){
     float altura = 8.0;
 
+    int w, h;
+    unsigned char* image = SOIL_load_image("C:\\Users\\pedro\\Documents\\GitHub\\CG\\Trabalho\\Imagens\\crate.jpg", &w, &h, 0, SOIL_LOAD_RGB);
+
     glBegin(GL_QUADS);
-        glColor3f(0.6f, 0.0f, 0.0f);
+//        glColor3f(0.6f, 0.0f, 0.0f);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w, h, 0, GL_RGB,
+              GL_UNSIGNED_BYTE, image);
         glVertex3f(20, altura, 20);
         glVertex3f(20, -altura, 20);
         glVertex3f(-20, -altura, 20);
