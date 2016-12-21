@@ -17,6 +17,7 @@
 				</Compiler>
 				<Linker>
 					<Add option="-lSOIL" />
+					<Add option="-lmingw32" />
 					<Add library="../../../../Downloads/Simple OpenGL Image Library/lib/libSOIL.a" />
 				</Linker>
 			</Target>

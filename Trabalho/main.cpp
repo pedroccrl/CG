@@ -1,19 +1,23 @@
 #include <windows.h>
 #include <iostream>
+#define GL_GLEXT_PROTOTYPES
+#include <GL/gl.h>
 #include <GL/glut.h>
 #include <GL/glext.h>
 #include <stdio.h>
 #include <math.h>
+#include "texura.h"
 #include "objeto.h"
 #include "base.h"
-#include "texura.h"
+
 
 float anguloz = 1, anguloy = 1, ang_esfera = 0;
 float frentex=0, frentez=0, frentey;
 int espaco = 30;
 float anda = 0;
-vector<face> aviao, trofeu, paredes;
-
+Objeto aviao, trofeu, paredes, sofa, tv, chao, escr;
+GLuint textura, TEXTURAS[10];
+int NUM_TEXTURA = 0;
 
 int tempo_animacao = 100;
 void Animacao(int tempo_atual){
@@ -23,10 +27,18 @@ void Animacao(int tempo_atual){
 }
 
 int angYFog = 0;
+float XFog = 0;
+float YFog = 0;
+const float DEG2RAD = 3.14159/180;
 void RotacionaFoguete(int t)
 {
-    angYFog += 1;
-    glutTimerFunc(5, RotacionaFoguete, 0);
+    angYFog++;
+    int radius = 40;
+    if (angYFog == 360) angYFog = 0;
+    float degInRad = angYFog*DEG2RAD;
+    XFog = cos(degInRad)*radius;
+    YFog = sin(degInRad)*radius;
+    glutTimerFunc(50, RotacionaFoguete, 0);
     glutPostRedisplay();
 }
 int angZTrof = 0;
@@ -59,39 +71,41 @@ void Desenha(void)
     glRotatef(anguloy,0,1,0);
     glRotatef(anguloz,1,0,0);
     glTranslatef(frentex, frentey, frentez);
-    //Chão
+
     glPushMatrix();
+        glColor3f(0.9, 0.9, 0.9);
+        DesenhaObj(paredes);
+    glPopMatrix();
+
+    glPushMatrix();
+        glBindTexture(GL_TEXTURE_2D, textura);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        glTranslatef(0, -1, 25);
         glBegin(GL_QUADS);
+
+            glColor3f(0.9,0.9,0.9);
+            glTexCoord2d(0,0);  glVertex3f(10, -8, 10);
+            glTexCoord2d(0,1); glVertex3f(-10, -8, 10);
+            glTexCoord2d(1,1); glVertex3f(-10, -8, -10);
+            glTexCoord2d(1,0); glVertex3f(10, -8, -10);
+        glEnd();
+    glPopMatrix();
+
+    if (frentey < -15)
+    {
+        glPushMatrix();
             glColor3f(0.5,0.5,0.5);
-            glVertex3f(20, -8, 20);
-            glVertex3f(-20, -8, 20);
-            glVertex3f(-20, -8, -20);
-            glVertex3f(20, -8, -20);
-        glEnd();
-    glPopMatrix();
+            glTranslatef(XFog,20,YFog);
+            glRotatef(angYFog, 0, 1, 0);
+            glRotatef(-90,1,0,0);
 
-    glPushMatrix();
-        glTranslatef(0, 20, 0);
-        glBegin (GL_QUADS);
-        glTexCoord2f(0,1);
-        glVertex3f(10,0,100);
-        glTexCoord2f(0,0);
-        glVertex3f(20,0,100);
-        glTexCoord2f(1,0);
-        glVertex3f(20,15,50);
-        glTexCoord2f(1,1);
-        glVertex3f(10,15,50);
-        glEnd();
-    glPopMatrix();
-
-    glPushMatrix();
-        glColor3f(0.5,0.5,0.5);
-        glTranslatef(-5,20,20);
-        glRotatef(-90,1,0,0);
-        glRotatef(angYFog, 0, 1, 0);
-        glScalef(0.1,0.1,0.1);
-        DesenhaObj(aviao);
-    glPopMatrix();
+    //        glScalef(0.1,0.1,0.1);
+            DesenhaObj(aviao);
+        glPopMatrix();
+    }
 
     glPushMatrix();
         glColor3f(0.5,0.2,0.2);
@@ -102,10 +116,33 @@ void Desenha(void)
         DesenhaObj(trofeu);
     glPopMatrix();
 
-    glColor3f(0.5, 0.1, 0.1);
-    DesenhaObj(paredes);
+    glPushMatrix();
+        glColor3f(.8f, .8f, .8f);
+        glTranslatef(0,-10,20);
+        glScalef(2, 2, 2);
+        DesenhaObj(sofa);
+    glPopMatrix();
 
-    Sofa();
+    glPushMatrix();
+        glColor3f(0.9f, 0.9f, 0.9f);
+        glTranslatef(0, 0, 35);
+        glRotatef(180, 0, 1, 0);
+        glScalef(0.3, 0.3, 0.3);
+        DesenhaObj(tv);
+    glPopMatrix();
+
+    glPushMatrix();
+        glColor3f(0.9f, 0.9f, 0.9f);
+        glTranslatef(0, -10, -25);
+        glScalef(0.15, 0.15, 0.15);
+        DesenhaObj(escr);
+    glPopMatrix();
+
+    glPushMatrix();
+        glColor3f(1, 1, 1);
+        DesenhaObj(chao);
+    glPopMatrix();
+
     Esferas(ang_esfera);
     Mesa();
     glFlush();
@@ -128,7 +165,7 @@ void LuzAmbiente(int id){
 void Teclado(unsigned char key, int x, int y)
 {
     float var = 0.5;
-    float var_ang = 0.8;
+    float var_ang = 1.2;
     switch (key)
     {
     case '+':
@@ -173,20 +210,19 @@ void Teclado(unsigned char key, int x, int y)
         case 27: exit(1);
 
     }
-    printf("Frente:\t x:%.2f\ty:%.2f\tz:%.2f\n",frentex,frentey,frentez);
-    printf("Angulo:\t x:%.2f\ty:%.2f\n",frentex,anguloy);
-    printf("Tempo Animacao:%d\n\n",tempo_animacao);
+//    printf("Frente:\t x:%.2f\ty:%.2f\tz:%.2f\n",frentex,frentey,frentez);
+//    printf("Angulo:\t x:%.2f\ty:%.2f\n",frentex,anguloy);
+//    printf("Tempo Animacao:%d\n\n",tempo_animacao);
     glutPostRedisplay();
 }
 
 void Inicializar()
 {
-	GLfloat luzAmbiente[4]={1.0,1.0,1.0,1.0}; //Cor emitida
-	GLfloat luzDifusa[4]={0.4, 0.3, 0.3, 1.0};	   // "cor"
-	GLfloat luzEspecular[4]={0.5, 0.5, 0.5, 1.0};// "brilho"
+	GLfloat luzAmbiente[4]={0.2, 0.2, 0.2, 1.0}; //Cor emitida
+	GLfloat luzDifusa[4]={0.6, 0.6, 0.6, 1.0};	   // "cor"
+	GLfloat luzEspecular[4]={0.6, 0.6, 0.6, 1.0};// "brilho"
 	GLfloat posicaoLuz[4]={0.0, 20.0, 0.0, 1.0};
 	GLfloat material_ambiente[4] = {0.7, 0.7, 0.7, 1.0};
-
 	// Capacidade de brilho do material
 	GLfloat especularidade[4]={1.0,1.0,1.0,1.0};
 	GLint especMaterial = 60;
@@ -219,11 +255,32 @@ void Inicializar()
     glLoadIdentity();
 
     glEnable(GL_DEPTH_TEST);
+    glEnable(GL_TEXTURE_2D);
+    glGenTextures(10, TEXTURAS);
 
     gluPerspective(70, 1, 0.1, 500);
     gluLookAt(0,0,1, /// observador
               0,0,0, /// centro
-              0,10,0); /// topo
+              0,1,0); /// topo
+
+
+        /* load an image file directly as a new OpenGL texture */
+    textura = SOIL_load_OGL_texture
+        (
+            "C:\\Users\\pedro\\Documents\\GitHub\\CG\\Trabalho\\Imagens\\tapete2.jpg",
+            SOIL_LOAD_AUTO,
+            SOIL_CREATE_NEW_ID,
+            SOIL_FLAG_MIPMAPS | SOIL_FLAG_INVERT_Y | SOIL_FLAG_NTSC_SAFE_RGB | SOIL_FLAG_COMPRESS_TO_DXT
+        );
+    /* check for an error during the load process */
+    if( 0 == textura )
+    {
+        printf( "SOIL loading error: '%s'\n", SOIL_last_result() );
+    }
+    else
+    {
+        printf("Textura carregada com sucesso!\n");
+    }
 }
 
 int main(int argc, char* argv[])
@@ -237,11 +294,18 @@ int main(int argc, char* argv[])
     glutDisplayFunc(Desenha);
     glutKeyboardFunc(Teclado);
 
-    aviao = LoadObj("C:\\Users\\pedro\\Documents\\GitHub\\CG\\Trabalho\\Objetos\\shuttle.obj");
-    trofeu = LoadObj("C:\\Users\\pedro\\Documents\\GitHub\\CG\\Trabalho\\Objetos\\trophyfootball.obj");
-    paredes = LoadObj("C:\\Users\\pedro\\Documents\\GitHub\\CG\\Trabalho\\Objetos\\paredes.obj");
+
 
     Inicializar();
+
+    paredes = LoadObj("C:\\Users\\pedro\\Documents\\GitHub\\CG\\Trabalho\\Objetos\\paredes.obj");
+    sofa = LoadObj("C:\\Users\\pedro\\Documents\\GitHub\\CG\\Trabalho\\Objetos\\Couch.obj");
+    aviao = LoadObj("C:\\Users\\pedro\\Documents\\GitHub\\CG\\Trabalho\\Objetos\\Caca.obj");
+    trofeu = LoadObj("C:\\Users\\pedro\\Documents\\GitHub\\CG\\Trabalho\\Objetos\\trofeu.obj");
+    chao = LoadObj("C:\\Users\\pedro\\Documents\\GitHub\\CG\\Trabalho\\Objetos\\chao.obj");
+    tv = LoadObj("C:\\Users\\pedro\\Documents\\GitHub\\CG\\Trabalho\\Objetos\\televisao.obj");
+    //escr = LoadObj("C:\\Users\\pedro\\Documents\\GitHub\\CG\\Trabalho\\Objetos\\escrivaninha.obj");
+
     glutTimerFunc(tempo_animacao,Animacao,tempo_animacao);
     glutTimerFunc(300, RotacionaFoguete, 0);
     glutTimerFunc(25, RotacionaTrofeu, 0);
