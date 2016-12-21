@@ -11,11 +11,11 @@
 #include "base.h"
 
 
-float anguloz = 1, anguloy = 1, ang_esfera = 0;
+float anguloz = 1, anguloy = 90, ang_esfera = 0;
 float frentex=0, frentez=0, frentey;
 int espaco = 30;
 float anda = 0;
-Objeto aviao, trofeu, paredes, sofa, tv, chao, escr;
+Objeto aviao, trofeu, paredes, sofa, tv, chao, escr, ventilador, telhado;
 GLuint textura, TEXTURAS[10];
 int NUM_TEXTURA = 0;
 
@@ -33,19 +33,19 @@ const float DEG2RAD = 3.14159/180;
 void RotacionaFoguete(int t)
 {
     angYFog++;
-    int radius = 40;
+    int radius = 60;
     if (angYFog == 360) angYFog = 0;
     float degInRad = angYFog*DEG2RAD;
     XFog = cos(degInRad)*radius;
     YFog = sin(degInRad)*radius;
-    glutTimerFunc(50, RotacionaFoguete, 0);
+    glutTimerFunc(5, RotacionaFoguete, 0);
     glutPostRedisplay();
 }
 int angZTrof = 0;
 void RotacionaTrofeu(int t)
 {
     angZTrof += 1;
-    glutTimerFunc(25, RotacionaTrofeu, 0);
+    glutTimerFunc(5, RotacionaTrofeu, 0);
     glutPostRedisplay();
 }
 
@@ -101,7 +101,7 @@ void Desenha(void)
             glTranslatef(XFog,20,YFog);
             glRotatef(angYFog, 0, 1, 0);
             glRotatef(-90,1,0,0);
-
+            glScalef(1.3, 1.3, 1.3);
     //        glScalef(0.1,0.1,0.1);
             DesenhaObj(aviao);
         glPopMatrix();
@@ -125,22 +125,33 @@ void Desenha(void)
 
     glPushMatrix();
         glColor3f(0.9f, 0.9f, 0.9f);
-        glTranslatef(0, 0, 35);
+        glTranslatef(0, -5, 35);
         glRotatef(180, 0, 1, 0);
         glScalef(0.3, 0.3, 0.3);
         DesenhaObj(tv);
     glPopMatrix();
 
     glPushMatrix();
-        glColor3f(0.9f, 0.9f, 0.9f);
-        glTranslatef(0, -10, -25);
-        glScalef(0.15, 0.15, 0.15);
-        DesenhaObj(escr);
+        glTranslatef(0, 5, 25);
+        glPushMatrix();
+            glColor3f(0.1f, 0.9f, 0.1f);
+            glRotatef(angZTrof, 0, 1, 0);
+            glScalef(0.12, 0.12, 0.12);
+            DesenhaObj(ventilador);
+        glPopMatrix();
     glPopMatrix();
 
     glPushMatrix();
         glColor3f(1, 1, 1);
         DesenhaObj(chao);
+    glPopMatrix();
+
+    glPushMatrix();
+        glColor3f(1, 1, 1);
+        glScalef(2.2, 2, 2.2);
+        glTranslatef(0, 5, 0);
+        glRotatef(-90, 1, 0, 0);
+        DesenhaObj(telhado);
     glPopMatrix();
 
     Esferas(ang_esfera);
@@ -240,6 +251,7 @@ void Inicializar()
 	glLightfv(GL_LIGHT0, GL_POSITION, posicaoLuz);
     // Habilita a definição da cor do material a partir da cor corrente
 	glEnable(GL_COLOR_MATERIAL);
+
 	//Habilita o uso de iluminação
 	glEnable(GL_LIGHTING);
 	// Habilita a luz de número 0
@@ -256,7 +268,6 @@ void Inicializar()
 
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_TEXTURE_2D);
-    glGenTextures(10, TEXTURAS);
 
     gluPerspective(70, 1, 0.1, 500);
     gluLookAt(0,0,1, /// observador
@@ -304,6 +315,8 @@ int main(int argc, char* argv[])
     trofeu = LoadObj("C:\\Users\\pedro\\Documents\\GitHub\\CG\\Trabalho\\Objetos\\trofeu.obj");
     chao = LoadObj("C:\\Users\\pedro\\Documents\\GitHub\\CG\\Trabalho\\Objetos\\chao.obj");
     tv = LoadObj("C:\\Users\\pedro\\Documents\\GitHub\\CG\\Trabalho\\Objetos\\televisao.obj");
+    ventilador = LoadObj("C:\\Users\\pedro\\Documents\\GitHub\\CG\\Trabalho\\Objetos\\ventilador.obj");
+    telhado = LoadObj("C:\\Users\\pedro\\Documents\\GitHub\\CG\\Trabalho\\Objetos\\telhado.obj");
     //escr = LoadObj("C:\\Users\\pedro\\Documents\\GitHub\\CG\\Trabalho\\Objetos\\escrivaninha.obj");
 
     glutTimerFunc(tempo_animacao,Animacao,tempo_animacao);

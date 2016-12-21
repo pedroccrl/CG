@@ -260,7 +260,7 @@
 
 1480982361 c:\users\victor\onedrive - id.uff.br\faculdade\2016.2\cg\trabalho\base.h
 
-1482304179 source:c:\users\pedro\documents\github\cg\trabalho\main.cpp
+1482307506 source:c:\users\pedro\documents\github\cg\trabalho\main.cpp
 	<windows.h>
 	<iostream>
 	<GL/gl.h>
@@ -272,7 +272,7 @@
 	"objeto.h"
 	"base.h"
 
-1482301493 c:\users\pedro\documents\github\cg\trabalho\objeto.h
+1482306851 c:\users\pedro\documents\github\cg\trabalho\objeto.h
 	<vector>
 	<iostream>
 	<stdio.h>

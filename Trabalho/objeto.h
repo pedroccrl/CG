@@ -29,7 +29,7 @@ typedef struct face {
 typedef struct objeto {
     int visivel;
     int numFaces;
-    int temText;
+    int temText = 0;
     GLuint textura;
     vector <Face> faces;
 } Objeto;
@@ -212,10 +212,10 @@ void DesenhaObj(Objeto obj)
             p3.z = f[i].vertices[j+2].z;
 
             compVetorNormalTriangulo(p1,p2,p3,&normal);
-            glNormal3f(normal.x,normal.y,normal.z);
+
 
            // printf ("VTs: %d\n", f[i].texturas.size());
-
+            glNormal3f(normal.x,normal.y,normal.z);
             if (obj.temText == 1)
             {
                 glTexCoord2d(f[i].texturas[0].x, f[i].texturas[0].y);
